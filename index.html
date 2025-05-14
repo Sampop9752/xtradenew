@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Xtrade Lead Form</title>
+</head>
+<body>
+  <h2>Submit Your Info to Xtrade</h2>
+  <form id="leadForm">
+    <input type="text" name="name" placeholder="Full Name" required><br><br>
+    <input type="email" name="email" placeholder="Email" required><br><br>
+    <input type="text" name="phone" placeholder="Phone (e.g. +971501234567)" required><br><br>
+    <input type="text" name="country" placeholder="Country Code (e.g. AE)" required><br><br>
+    <input type="text" name="language" placeholder="Language Code (e.g. ar)" required><br><br>
+    <input type="number" name="age" placeholder="Age" required><br><br>
+    <input type="hidden" name="affTrack" value="1008278">
+    <input type="hidden" name="affToken" value="42D0BDE115">
+    <button type="submit">Send Lead</button>
+  </form>
+
+  <div id="response" style="margin-top:20px;"></div>
+
+  <script>
+    const form = document.getElementById('leadForm');
+    const responseDiv = document.getElementById('response');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault(); // Stop page reload
+
+      const data = Object.fromEntries(new FormData(form).entries());
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending...";
+
+      try {
+        const res = await fetch('http://localhost:3000/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          responseDiv.innerHTML = `<p style="color: green;">✅ Lead submitted successfully!</p>`;
+        } else {
+          responseDiv.innerHTML = `<p style="color: red;">❌ Submission failed: ${JSON.stringify(result)}</p>`;
+        }
+
+      } catch (error) {
+        responseDiv.innerHTML = `<p style="color: red;">🚨 Error: ${error.message}</p>`;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send Lead";
+      }
+    });
+  </script>
+</body>
+</html>
